@@ -8,6 +8,8 @@ BASE_URL = "https://www.nordcap-outlet.de/kuehltechnik/"
 CSV_ENCODING = "utf-8"
 CSV_DELIMITER = ";"
 
+errors = []
+
 def get_soup(url):
     content = urllib.request.urlopen(url)
     read_content = content.read()
@@ -61,8 +63,24 @@ def get_product_information(product_url):
     warranty = product_page.find_all("span", "entry--content", itemprop = "seriennummer")[-1].text.strip()
 
     def get_description(product_page):
-        description = product_page.find_all("div", "product--description")[0].get_text()
-        return description
+        result_parts = []
+        description = product_page.find_all("div", "product--description")[0]
+        description_parts = description.find_all("p")
+        strong_parts = description.find_all("strong")
+        possible_main_parts = [part for part in description_parts if "gerät" in part.text.lower()]
+
+        main_description = ""
+        if len(strong_parts) > 0:
+            main_description = strong_parts[0].text
+        elif len(possible_main_parts) > 0:
+            # TODO: If multiple lines, extract line with "gerät"
+            main_description = possible_main_parts[0].text
+        else:
+            errors.append("Keine Beschreibung gefunden für " + product_url)
+        result_parts.append(main_description)
+        # TODO: Add damages (everything after index of main_description?)
+        result = ", ".join(result_parts)
+        return result
 
     def get_image_urls(page_number):
         thumbnail_list = product_page.find_all("div", "image-slider--thumbnails-slide")
@@ -78,7 +96,9 @@ def get_product_information(product_url):
 
     image_urls = get_image_urls(product_page)
 
+    #return [get_description(product_page), product_url]
     return [
+        product_url,
         price,
         outlet_code,
         article_number,
@@ -94,7 +114,9 @@ def get_product_information(product_url):
     ]
 
 def get_header():
+    #return(["description", "url"])
     return ([
+        "URL",
         "Preis",
         "OutletCode",
         "Artikelnummer",
@@ -131,7 +153,12 @@ def main():
             product_number = product_number + 1
             print("-- Produkt {} von {}\r".format(product_number, len(product_urls)), end = "")
             csv_writer.writerow(get_product_information(product_url))
-    print("-- Vorgang abgeschlossen")
+    if len(errors) == 0:
+        print("-- Vorgang abgeschlossen")
+    else:
+        print("-- Vorgang mit Fehlern abgeschlossen:")
+        for error in errors:
+            print("-- Fehler: " + error)
     print("")
 
 if __name__ == "__main__":
