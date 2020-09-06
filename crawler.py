@@ -77,10 +77,7 @@ def get_product_information(product_url):
         if len(strong_parts) > 0:
             main_description = strong_parts[0].text
         elif len(possible_main_parts) > 0:
-            if len(possible_main_parts[0]) > 1:
-                main_description = possible_main_parts[0].get_text(" ")
-            else:
-                main_description = possible_main_parts[0].text
+            main_description = possible_main_parts[0].get_text(" ")
         else:
             errors.append("Keine Beschreibung gefunden für " + product_url)
         result_parts.append(main_description)
