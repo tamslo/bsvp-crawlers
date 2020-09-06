@@ -67,22 +67,48 @@ def get_product_information(product_url):
             main_content_indicator = "gerät"
             return [part for part in all_parts if main_content_indicator in part.text.lower()]
 
-        result_parts = []
+        def get_main_description_index(description_parts, part):
+            main_description_index = -1
+            index = -1
+            for description_part in description_parts:
+                index = index + 1
+                if (description_part.text == part.text):
+                    main_description_index = index
+                    break
+            return main_description_index
+
+        def get_further_description(description, description_parts, main_description_part):
+            main_description_index = get_main_description_index(description_parts, main_description_part)
+            further_parts = list(map(
+                lambda further_part: further_part.get_text(", "),
+                description_parts[main_description_index + 1:]
+            ))
+            damage_list = description.find_all("ul")
+            if len(damage_list) > 0:
+                damage_list = list(map(
+                    lambda list_item: list_item.get_text(),
+                    damage_list[0].find_all("li")
+                ))
+            return further_parts + damage_list
+
         description = product_page.find_all("div", "product--description")[0]
         strong_parts = description.find_all("strong")
         description_parts = description.find_all("p")
         possible_main_parts = get_main_parts(description_parts)
 
-        main_description = ""
         if len(strong_parts) > 0:
-            main_description = strong_parts[0].text
+            main_description_part = strong_parts[0]
         elif len(possible_main_parts) > 0:
-            main_description = possible_main_parts[0].get_text(" ")
+            main_description_part = possible_main_parts[0]
         else:
             errors.append("Keine Beschreibung gefunden für " + product_url)
-        result_parts.append(main_description)
-        # TODO: Add damages (everything after index of main_description?)
-        result = ", ".join(result_parts)
+            return None
+
+        main_description = main_description_part.get_text(" ").strip()
+        result = [ main_description ] + get_further_description(description, description_parts, main_description_part)
+        result =  ", ".join(result)
+        result = result.strip()
+        if result.endswith(","): result = result[0:-1]
         return result
 
     def get_image_urls(page_number):
@@ -99,7 +125,6 @@ def get_product_information(product_url):
 
     image_urls = get_image_urls(product_page)
 
-    #return [get_description(product_page), product_url]
     return [
         product_url,
         price,
@@ -117,7 +142,6 @@ def get_product_information(product_url):
     ]
 
 def get_header():
-    #return(["description", "url"])
     return ([
         "URL",
         "Preis",
