@@ -63,18 +63,24 @@ def get_product_information(product_url):
     warranty = product_page.find_all("span", "entry--content", itemprop = "seriennummer")[-1].text.strip()
 
     def get_description(product_page):
+        def get_main_parts(all_parts):
+            main_content_indicator = "gerät"
+            return [part for part in all_parts if main_content_indicator in part.text.lower()]
+
         result_parts = []
         description = product_page.find_all("div", "product--description")[0]
-        description_parts = description.find_all("p")
         strong_parts = description.find_all("strong")
-        possible_main_parts = [part for part in description_parts if "gerät" in part.text.lower()]
+        description_parts = description.find_all("p")
+        possible_main_parts = get_main_parts(description_parts)
 
         main_description = ""
         if len(strong_parts) > 0:
             main_description = strong_parts[0].text
         elif len(possible_main_parts) > 0:
-            # TODO: If multiple lines, extract line with "gerät"
-            main_description = possible_main_parts[0].text
+            if len(possible_main_parts[0]) > 1:
+                main_description = possible_main_parts[0].get_text(" ")
+            else:
+                main_description = possible_main_parts[0].text
         else:
             errors.append("Keine Beschreibung gefunden für " + product_url)
         result_parts.append(main_description)
