@@ -60,7 +60,12 @@ def get_product_information(product_url):
     article_number = product_page.find_all("span", "entry--content", itemprop = "artikelnummer")[0].text.strip()
     article_name = product_page.find_all("h1", "product--title")[0].text.strip()
     article_type = product_page.find_all("span", "entry--content", itemprop = "geraeteart")[0].text.strip()
-    warranty = product_page.find_all("span", "entry--content", itemprop = "seriennummer")[-1].text.strip()
+    # Warranty items called "seriennummer" on outlet page; need to differentiate
+    serial_number_items = product_page.find_all("span", "entry--content", itemprop = "seriennummer")
+    warranty = serial_number_items[-1].text.strip()
+    if (len(serial_number_items) > 1):
+        serial_number = serial_number_items[0].text.strip()
+        outlet_code = "{} / {}".format(outlet_code, serial_number)
 
     def get_description(product_page):
         def get_main_parts(all_parts):
