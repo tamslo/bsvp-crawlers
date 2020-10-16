@@ -58,7 +58,7 @@ def get_product_information(product_url):
     price = product_page.find_all("span", "price--content")[0].text[0:-4].strip()
     outlet_code = product_page.find_all("span", "entry--content", itemprop = "sku")[0].text.strip()
     article_number = product_page.find_all("span", "entry--content", itemprop = "artikelnummer")[0].text.strip()
-    article_name = "Nordcap " + product_page.find_all("h1", "product--title")[0].text.strip()
+    article_name = product_page.find_all("h1", "product--title")[0].text.strip()
     article_type = product_page.find_all("span", "entry--content", itemprop = "geraeteart")[0].text.strip()
     warranty = product_page.find_all("span", "entry--content", itemprop = "seriennummer")[-1].text.strip()
 
