@@ -1,6 +1,6 @@
-# NordCap Crawler
+# NordCap Crawlers
 
-A crawler for NordCap refrigeration equipment.
+Crawlers for NordCap refrigeration equipment.
 
 - Install requirements with `pip install -r requirements.txt`
 - Run `python crawler.py [-o|--outlet] [-d|--delivery_status]`
