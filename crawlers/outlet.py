@@ -5,6 +5,7 @@ class OutletCrawler(NordcapBaseCrawler):
     name = OUTLET_CRAWLER
     urls = ["https://www.nordcap-outlet.de/kuehltechnik/"]
     header = [
+        "URL",
         "Preis",
         "OutletCode",
         "Artikelnummer",
@@ -105,6 +106,7 @@ class OutletCrawler(NordcapBaseCrawler):
         image_urls = get_image_urls(product_page)
 
         return [
+            product_url,
             price,
             outlet_code,
             article_number,
