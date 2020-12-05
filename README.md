@@ -1,6 +1,6 @@
-# NordCap Crawlers
+# BSVP Crawlers
 
-Crawlers for NordCap refrigeration equipment.
+Crawlers for refrigeration equipment.
 
 - Install requirements with `pip install -r requirements.txt`
 - Run `python crawler.py [-o|--outlet] [-d|--delivery_status]`
