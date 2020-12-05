@@ -1,17 +1,17 @@
 import argparse
 import time
 
-from constants import OUTLET_CRAWLER, DELIVERY_STATUS_CRAWLER
-from crawlers.outlet import OutletCrawler
-from crawlers.delivery_status import DeliveryStatusCrawler
+from constants import NORDCAP_OUTLET_CRAWLER, NORDCAP_DELIVERY_STATUS_CRAWLER
+from crawlers.nordcap_outlet import NordcapOutletCrawler
+from crawlers.nordcap_delivery_status import NordcapDeliveryStatusCrawler
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-o", "--{}".format(OUTLET_CRAWLER), action="store_true")
-parser.add_argument("-d", "--{}".format(DELIVERY_STATUS_CRAWLER), action="store_true")
+parser.add_argument("-no", "--{}".format(NORDCAP_OUTLET_CRAWLER), action="store_true")
+parser.add_argument("-nd", "--{}".format(NORDCAP_DELIVERY_STATUS_CRAWLER), action="store_true")
 
 crawlers = {
-    OUTLET_CRAWLER: OutletCrawler,
-    DELIVERY_STATUS_CRAWLER: DeliveryStatusCrawler
+    NORDCAP_OUTLET_CRAWLER: NordcapOutletCrawler,
+    NORDCAP_DELIVERY_STATUS_CRAWLER: NordcapDeliveryStatusCrawler
 }
 
 def main():
@@ -24,7 +24,7 @@ def main():
         selected_crawlers = crawlers.keys()
 
     print("")
-    print("-- NORDCAP CRAWLERS")
+    print("-- BSVP CRAWLERS")
     print("-- © {} Tamara Slosarek".format(time.strftime("%Y")))
     print("")
 

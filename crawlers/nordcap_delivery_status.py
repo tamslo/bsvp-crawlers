@@ -1,8 +1,8 @@
 from crawlers.nordcap_base import NordcapBaseCrawler
-from constants import DELIVERY_STATUS_CRAWLER
+from constants import NORDCAP_DELIVERY_STATUS_CRAWLER
 
-class DeliveryStatusCrawler(NordcapBaseCrawler):
-    name = DELIVERY_STATUS_CRAWLER
+class NordcapDeliveryStatusCrawler(NordcapBaseCrawler):
+    name = NORDCAP_DELIVERY_STATUS_CRAWLER
     urls = [
         "https://www.nordcap.de/nordcap-shop/kuehltechnik/",
         "https://www.nordcap.de/nordcap-shop/cool-line/"

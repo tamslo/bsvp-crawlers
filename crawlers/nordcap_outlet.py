@@ -1,8 +1,8 @@
 from crawlers.nordcap_base import NordcapBaseCrawler
-from constants import OUTLET_CRAWLER
+from constants import NORDCAP_OUTLET_CRAWLER
 
-class OutletCrawler(NordcapBaseCrawler):
-    name = OUTLET_CRAWLER
+class NordcapOutletCrawler(NordcapBaseCrawler):
+    name = NORDCAP_OUTLET_CRAWLER
     urls = ["https://www.nordcap-outlet.de/kuehltechnik/"]
     header = [
         "URL",

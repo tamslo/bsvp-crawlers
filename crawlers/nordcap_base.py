@@ -64,7 +64,7 @@ class NordcapBaseCrawler:
     def run(self):
         print("-- {} CRAWLER".format(self.name.replace("_", " ").upper()))
         print("")
-        file_name = "nordcap_{}.csv".format(self.name)
+        file_name = "{}.csv".format(self.name)
         print("-- Informationen über NordCap Kühlmöbel von {} werden in die Datei".format(" und ".join(self.urls)))
         print("-- {} geschrieben".format(file_name))
         print("")

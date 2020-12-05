@@ -1,2 +1,2 @@
-OUTLET_CRAWLER = "outlet"
-DELIVERY_STATUS_CRAWLER = "delivery_status"
+NORDCAP_OUTLET_CRAWLER = "nordcap_outlet"
+NORDCAP_DELIVERY_STATUS_CRAWLER = "norcap_delivery_status"
