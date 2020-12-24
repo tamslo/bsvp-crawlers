@@ -20,7 +20,7 @@ class BaseCrawler:
     def get_page_product_urls(self, page):
         self.__ensure_abstract_method("get_page_product_urls")
 
-    def get_product_information(self, product_url):
+    def get_product_information(self, product_page, product_url):
         self.__ensure_abstract_method("get_product_information")
 
     def __ensure_abstract_method(self, method_name):
@@ -72,7 +72,8 @@ class BaseCrawler:
             for product_url in product_urls:
                 product_number = product_number + 1
                 print("--- Produkt {} von {}\r".format(product_number, len(product_urls)), end = "")
-                product_information = self.get_product_information(product_url)
+                product_page = self.get_soup(product_url)
+                product_information = self.get_product_information(product_page, product_url)
                 csv_writer.writerow(product_information)
         if len(self.errors) == 0:
             print("--- Vorgang abgeschlossen")

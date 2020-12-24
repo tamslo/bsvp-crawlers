@@ -1,5 +1,5 @@
 from crawlers.nordcap_base import NordcapBaseCrawler
-from constants import NORDCAP_DELIVERY_STATUS_CRAWLER
+from constants import NORDCAP_DELIVERY_STATUS_CRAWLER, DELIVERY_STATUS_PROPERTIES
 
 class NordcapDeliveryStatusCrawler(NordcapBaseCrawler):
     name = NORDCAP_DELIVERY_STATUS_CRAWLER
@@ -7,7 +7,7 @@ class NordcapDeliveryStatusCrawler(NordcapBaseCrawler):
         "https://www.nordcap.de/nordcap-shop/kuehltechnik/",
         "https://www.nordcap.de/nordcap-shop/cool-line/"
     ]
-    header = [ "Artikelnummer", "Lieferstatus" ]
+    header = DELIVERY_STATUS_PROPERTIES
 
     def get_page_product_urls(self, page):
         product_titles = page.find_all("a", "product--title")
@@ -17,8 +17,7 @@ class NordcapDeliveryStatusCrawler(NordcapBaseCrawler):
         ))
         return(page_product_urls)
 
-    def get_product_information(self, product_url):
-        product_page = self.get_soup(product_url)
+    def get_product_information(self, product_page, product_url):
         article_number = product_page.find_all("span", "entry--content", itemprop = "sku")[0].text.strip()
         delivery_status_class = product_page.find_all("span", "delivery--text")[0]["class"][1]
         delivery_statuses = {

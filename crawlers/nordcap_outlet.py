@@ -1,24 +1,10 @@
 from crawlers.nordcap_base import NordcapBaseCrawler
-from constants import NORDCAP_OUTLET_CRAWLER
+from constants import NORDCAP_OUTLET_CRAWLER, OUTLET_PROPERTIES
 
 class NordcapOutletCrawler(NordcapBaseCrawler):
     name = NORDCAP_OUTLET_CRAWLER
     urls = ["https://www.nordcap-outlet.de/kuehltechnik/"]
-    header = [
-        "URL",
-        "Preis",
-        "OutletCode",
-        "Artikelnummer",
-        "Artikelname",
-        "Geräteart",
-        "Gewährleistung",
-        "Bescheibung",
-        "Bild1",
-        "Bild2",
-        "Bild3",
-        "Bild4",
-        "Bild5"
-    ]
+    header = OUTLET_PROPERTIES
 
     def get_page_product_urls(self, page):
         product_buttons = page.find_all("div", "product--detail-btn")
@@ -28,8 +14,7 @@ class NordcapOutletCrawler(NordcapBaseCrawler):
         ))
         return(page_product_urls)
 
-    def get_product_information(self, product_url):
-        product_page = self.get_soup(product_url)
+    def get_product_information(self, product_page, product_url):
         price = product_page.find_all("span", "price--content")[0].text[0:-4].strip()
         outlet_code = product_page.find_all("span", "entry--content", itemprop = "sku")[0].text.strip()
         article_number = product_page.find_all("span", "entry--content", itemprop = "artikelnummer")[0].text.strip()
