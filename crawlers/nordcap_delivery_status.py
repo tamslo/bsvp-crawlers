@@ -18,7 +18,7 @@ class NordcapDeliveryStatusCrawler(NordcapBaseCrawler):
         return(page_product_urls)
 
     def get_product_information(self, product_url):
-        product_page = self._get_soup(product_url)
+        product_page = self.get_soup(product_url)
         article_number = product_page.find_all("span", "entry--content", itemprop = "sku")[0].text.strip()
         delivery_status_class = product_page.find_all("span", "delivery--text")[0]["class"][1]
         delivery_statuses = {

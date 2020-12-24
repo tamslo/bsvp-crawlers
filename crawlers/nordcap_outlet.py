@@ -29,7 +29,7 @@ class NordcapOutletCrawler(NordcapBaseCrawler):
         return(page_product_urls)
 
     def get_product_information(self, product_url):
-        product_page = self._get_soup(product_url)
+        product_page = self.get_soup(product_url)
         price = product_page.find_all("span", "price--content")[0].text[0:-4].strip()
         outlet_code = product_page.find_all("span", "entry--content", itemprop = "sku")[0].text.strip()
         article_number = product_page.find_all("span", "entry--content", itemprop = "artikelnummer")[0].text.strip()
