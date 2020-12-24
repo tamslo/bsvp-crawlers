@@ -11,11 +11,11 @@ class BaseCrawler:
     csv_delimiter = ";"
     errors = []
 
-    def get_total_pages(self, page):
-        self.__ensure_abstract_method("get_total_pages")
-
     def get_page(self, base_url, page_number):
         self.__ensure_abstract_method("get_page")
+
+    def get_total_pages(self, page):
+        self.__ensure_abstract_method("get_total_pages")
 
     def get_page_product_urls(self, page):
         self.__ensure_abstract_method("get_page_product_urls")
@@ -49,7 +49,7 @@ class BaseCrawler:
         total_pages = self.get_total_pages(first_page)
         for page_number in range(2, total_pages + 1):
             pages.append(self.get_page(base_url, page_number))
-        return(pages)
+        return pages
 
     def run(self):
         print("-- {} CRAWLER".format(self.name.replace("_", " ").upper()))
