@@ -1,5 +1,9 @@
 from crawlers.nordcap_base import NordcapBaseCrawler
-from constants import NORDCAP_DELIVERY_STATUS_CRAWLER, DELIVERY_STATUS_PROPERTIES
+from constants import NORDCAP_DELIVERY_STATUS_CRAWLER
+from constants import DELIVERY_STATUS_PROPERTIES
+from constants import DELIVERY_STATUS_AVAILABLE
+from constants import DELIVERY_STATUS_SOON_AVAILABLE
+from constants import DELIVERY_STATUS_UNAVAILABLE
 
 class NordcapDeliveryStatusCrawler(NordcapBaseCrawler):
     name = NORDCAP_DELIVERY_STATUS_CRAWLER
@@ -21,9 +25,9 @@ class NordcapDeliveryStatusCrawler(NordcapBaseCrawler):
         article_number = product_page.find_all("span", "entry--content", itemprop = "sku")[0].text.strip()
         delivery_status_class = product_page.find_all("span", "delivery--text")[0]["class"][1]
         delivery_statuses = {
-            "delivery--text-available": 1,
-            "delivery--text-more-is-coming": 4,
-            "delivery--text-not-available": 5
+            "delivery--text-available": DELIVERY_STATUS_AVAILABLE,
+            "delivery--text-more-is-coming": DELIVERY_STATUS_SOON_AVAILABLE,
+            "delivery--text-not-available": DELIVERY_STATUS_UNAVAILABLE
         }
         if delivery_status_class in delivery_statuses:
             delivery_status = delivery_statuses[delivery_status_class]
