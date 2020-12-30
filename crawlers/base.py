@@ -10,6 +10,10 @@ class BaseCrawler:
     csv_encoding = "utf-8"
     csv_delimiter = ";"
     errors = []
+    logger = None
+
+    def __init__(self, logger):
+        self.logger = logger
 
     def get_page(self, base_url, page_number):
         self.__ensure_abstract_method("get_page")
@@ -52,33 +56,41 @@ class BaseCrawler:
         return pages
 
     def run(self):
-        print("-- {} CRAWLER".format(self.name.replace("_", " ").upper()))
-        print("")
+        self.logger.log("{} CRAWLER".format(self.name.replace("_", " ").upper()), console_prefix = "--")
+        self.logger.log("")
         file_name = "{}.csv".format(self.name)
-        print("--- Informationen über Kühlmöbel von {} werden in die Datei".format(" und ".join(self.urls)))
-        print("--- {} geschrieben".format(file_name))
-        print("")
-        print("--- Verfügbare Produkte werde gesammelt...")
+        for index, url in enumerate(self.urls):
+            if index == 0:
+                self.logger.log("Informationen über Kühlmöbel von {}".format(url), console_prefix = "---")
+            elif index == len(self.urls) - 1:
+                self.logger.log("und {} werden".format(url), console_prefix = "---")
+            else:
+                self.logger.log("und {}".format(url), console_prefix = "---")
+        if len(self.urls) == 1:
+            self.logger.log("werden in die Datei {} geschrieben".format(file_name), console_prefix = "---")
+        else:
+            self.logger.log("in die Datei {} geschrieben".format(file_name), console_prefix = "---")
+        self.logger.log("")
+        self.logger.log("Verfügbare Produkte werde gesammelt...", console_prefix = "---")
         product_urls = []
         for base_url in self.urls:
             product_urls = product_urls + self.get_product_urls(base_url)
-        print("--- {} Produkte gefunden".format(len(product_urls)))
+        self.logger.log("{} Produkte gefunden".format(len(product_urls)), console_prefix = "---")
         with open(file_name, "w", newline = "", encoding = self.csv_encoding) as csv_file:
             csv_writer = csv.writer(csv_file, delimiter = self.csv_delimiter)
             csv_writer.writerow(self.header)
             product_number = 0
-            print("")
-            print("--- Produktinformationen werden gesammelt...")
+            self.logger.log("Produktinformationen werden gesammelt...", console_prefix = "---")
             for product_url in product_urls:
                 product_number = product_number + 1
-                print("--- Produkt {} von {}\r".format(product_number, len(product_urls)), end = "")
+                self.logger.print_progress("Produkt", product_number, len(product_urls), console_prefix = "---")
                 product_page = self.get_soup(product_url)
                 product_information = self.get_product_information(product_page, product_url)
                 csv_writer.writerow(product_information)
         if len(self.errors) == 0:
-            print("--- Vorgang abgeschlossen")
+            self.logger.log("Vorgang abgeschlossen", console_prefix = "---")
         else:
-            print("--- Vorgang mit Fehlern abgeschlossen:")
+            self.logger.log("Vorgang mit Fehlern abgeschlossen:", console_prefix = "---")
             for error in self.errors:
-                print("--- Fehler: " + error)
-        print("")
+                self.logger.log("Fehler: " + error, console_prefix = "---")
+        self.logger.log("")

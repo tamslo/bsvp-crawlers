@@ -7,6 +7,7 @@ from constants import RIVACOLD_DELIVERY_STATUS_CRAWLER
 from crawlers.nordcap_outlet import NordcapOutletCrawler
 from crawlers.nordcap_delivery_status import NordcapDeliveryStatusCrawler
 from crawlers.rivacold_delivery_status import RivacoldDeliveryStatusCrawler
+from logger import Logger
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-no", "--{}".format(NORDCAP_OUTLET_CRAWLER), action="store_true")
@@ -28,14 +29,15 @@ def main():
     if len(selected_crawlers) == 0:
         selected_crawlers = crawlers.keys()
 
-    print("")
-    print("-- BSVP CRAWLERS")
-    print("-- © {} Tamara Slosarek".format(time.strftime("%Y")))
-    print("")
+    logger = Logger()
+    logger.log("")
+    logger.log("BSVP CRAWLERS", console_prefix = "--")
+    logger.log("© {} Tamara Slosarek".format(time.strftime("%Y")), console_prefix = "--")
+    logger.log("")
 
     for crawler in selected_crawlers:
         Crawler = crawlers[crawler]
-        Crawler().run()
+        Crawler(logger).run()
 
 
 if __name__ == "__main__":
