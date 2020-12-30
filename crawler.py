@@ -1,5 +1,6 @@
 import argparse
 import time
+import traceback
 
 from constants import NORDCAP_OUTLET_CRAWLER
 from constants import NORDCAP_DELIVERY_STATUS_CRAWLER
@@ -37,7 +38,11 @@ def main():
 
     for crawler in selected_crawlers:
         Crawler = crawlers[crawler]
-        Crawler(logger).run()
+        try:
+            Crawler(logger).run()
+        except Exception as exception:
+            logger.log("Es ist ein Fehler aufgetreten:", console_prefix = "---")
+            logger.log(traceback.format_exc())
 
 
 if __name__ == "__main__":
