@@ -1,5 +1,5 @@
 NORDCAP_OUTLET_CRAWLER = "nordcap_outlet"
-NORDCAP_DELIVERY_STATUS_CRAWLER = "norcap_delivery_status"
+NORDCAP_DELIVERY_STATUS_CRAWLER = "nordcap_delivery_status"
 RIVACOLD_DELIVERY_STATUS_CRAWLER = "rivacold_delivery_status"
 
 LOG_DIRECTORY = "logs"
