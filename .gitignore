@@ -1,6 +1,9 @@
 *.html
 *.csv
 logs/
+config.yaml
+
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

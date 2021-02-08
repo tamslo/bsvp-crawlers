@@ -2,6 +2,7 @@ import argparse
 import time
 import traceback
 
+from config import get_config
 from constants import NORDCAP_OUTLET_CRAWLER
 from constants import NORDCAP_DELIVERY_STATUS_CRAWLER
 from constants import RIVACOLD_DELIVERY_STATUS_CRAWLER
@@ -30,6 +31,8 @@ def main():
     if len(selected_crawlers) == 0:
         selected_crawlers = crawlers.keys()
 
+    config = get_config()
+
     logger = Logger()
     logger.log("")
     logger.log("BSVP CRAWLERS", console_prefix = "--")
@@ -39,7 +42,7 @@ def main():
     for crawler in selected_crawlers:
         Crawler = crawlers[crawler]
         try:
-            Crawler(logger).run()
+            Crawler(logger, config).run()
         except Exception as exception:
             logger.log("Es ist ein Fehler aufgetreten:", console_prefix = "---")
             logger.log(traceback.format_exc())

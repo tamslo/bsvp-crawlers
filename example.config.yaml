@@ -1,0 +1,4 @@
+output_paths:
+  nordcap_outlet: ../../Nordcap/nordcap_outlet.csv
+  nordcap_delivery_status: ../../Nordcap/nordcap_delivery_status.csv
+  rivacold_delivery_status: ../../Rivacold/rivacold_delivery_status.csv

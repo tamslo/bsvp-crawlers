@@ -12,8 +12,12 @@ class BaseCrawler:
     errors = []
     logger = None
 
-    def __init__(self, logger):
+    def __init__(self, logger, config):
         self.logger = logger
+        self.file_path = "{}.csv".format(self.name)
+        output_paths = config["output_paths"]
+        if self.name in output_paths:
+            self.file_path = output_paths[self.name]
 
     def get_page(self, base_url, page_number):
         self.__ensure_abstract_method("get_page")
@@ -58,7 +62,6 @@ class BaseCrawler:
     def run(self):
         self.logger.log("{} CRAWLER".format(self.name.replace("_", " ").upper()), console_prefix = "--")
         self.logger.log("")
-        file_name = "{}.csv".format(self.name)
         for index, url in enumerate(self.urls):
             if index == 0:
                 self.logger.log("Informationen über Kühlmöbel von {}".format(url), console_prefix = "---")
@@ -67,16 +70,16 @@ class BaseCrawler:
             else:
                 self.logger.log("und {}".format(url), console_prefix = "---")
         if len(self.urls) == 1:
-            self.logger.log("werden in die Datei {} geschrieben".format(file_name), console_prefix = "---")
+            self.logger.log("werden in die Datei {} geschrieben".format(self.file_path), console_prefix = "---")
         else:
-            self.logger.log("in die Datei {} geschrieben".format(file_name), console_prefix = "---")
+            self.logger.log("in die Datei {} geschrieben".format(self.file_path), console_prefix = "---")
         self.logger.log("")
         self.logger.log("Verfügbare Produkte werde gesammelt...", console_prefix = "---")
         product_urls = []
         for base_url in self.urls:
             product_urls = product_urls + self.get_product_urls(base_url)
         self.logger.log("{} Produkte gefunden".format(len(product_urls)), console_prefix = "---")
-        with open(file_name, "w", newline = "", encoding = self.csv_encoding) as csv_file:
+        with open(self.file_path, "w", newline = "", encoding = self.csv_encoding) as csv_file:
             csv_writer = csv.writer(csv_file, delimiter = self.csv_delimiter)
             csv_writer.writerow(self.header)
             product_number = 0

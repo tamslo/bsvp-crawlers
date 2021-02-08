@@ -3,6 +3,8 @@ NORDCAP_DELIVERY_STATUS_CRAWLER = "nordcap_delivery_status"
 RIVACOLD_DELIVERY_STATUS_CRAWLER = "rivacold_delivery_status"
 
 LOG_DIRECTORY = "logs"
+EXAMPLE_CONFIG_PATH = "example.config.yaml"
+CONFIG_PATH = "config.yaml"
 
 DELIVERY_STATUS_AVAILABLE = 1
 DELIVERY_STATUS_SOON_AVAILABLE = 4
