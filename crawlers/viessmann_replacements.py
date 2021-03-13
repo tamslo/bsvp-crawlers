@@ -1,3 +1,4 @@
+import math
 from crawlers.base import BaseCrawler
 from constants import VIESSMANN_REPLACEMENTS_CRAWLER, VAT
 
@@ -34,5 +35,5 @@ class ViessmannReplacementsCrawler(BaseCrawler):
         order_number = product_page.find("span", { "id": "sku" }).text
         brutto_price_text = product_page.find_all("span", "price")[0].text[:-2] # cut off " €"
         brutto_price = float(brutto_price_text.replace(",", "."))
-        netto_price = brutto_price / (1 + VAT)
+        netto_price = math.ceil((brutto_price / (1 + VAT)) * 100) / 100
         return [ order_number, netto_price ]
