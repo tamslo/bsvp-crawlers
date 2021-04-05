@@ -37,7 +37,17 @@ class BaseCrawler:
         raise Exception(exception_text)
 
     def get_soup(self, url):
-        content = urllib.request.urlopen(url)
+        MAX_RETRIES = 5
+        current_retries = 0
+        content = None
+        while current_retries < MAX_RETRIES and content == None:
+            try:
+                current_retries = current_retries + 1
+                content = urllib.request.urlopen(url)
+            except urllib.error.URLError as exception:
+                pass
+        if content == None:
+            raise Exception("Keine Antort nach {} Versuchen.".format(MAX_RETRIES))
         read_content = content.read()
         soup = BeautifulSoup(read_content,'html.parser')
         return soup
@@ -85,11 +95,15 @@ class BaseCrawler:
             product_number = 0
             self.logger.log("Produktinformationen werden gesammelt...", console_prefix = "---")
             for product_url in product_urls:
-                product_number = product_number + 1
-                self.logger.print_progress("Produkt", product_number, len(product_urls), console_prefix = "---")
-                product_page = self.get_soup(product_url)
-                product_information = self.get_product_information(product_page, product_url)
-                csv_writer.writerow(product_information)
+                try:
+                    product_number = product_number + 1
+                    self.logger.print_progress("Produkt", product_number, len(product_urls), console_prefix = "---")
+                    product_page = self.get_soup(product_url)
+                    product_information = self.get_product_information(product_page, product_url)
+                    csv_writer.writerow(product_information)
+                except Exception as exception:
+                    self.logger.log("Das Produkt mit der URL {} wurde übersprungen: {}".format(product_url, str(exception)))
+                    pass
         if len(self.errors) == 0:
             self.logger.log("Vorgang abgeschlossen", console_prefix = "---")
         else:
