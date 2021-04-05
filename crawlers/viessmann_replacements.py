@@ -34,6 +34,6 @@ class ViessmannReplacementsCrawler(BaseCrawler):
     def get_product_information(self, product_page, product_url):
         order_number = product_page.find("span", { "id": "sku" }).text
         brutto_price_text = product_page.find_all("span", "price")[0].text[:-2] # cut off " €"
-        brutto_price = float(brutto_price_text.replace(",", "."))
-        netto_price = math.ceil((brutto_price / (1 + VAT)) * 100) / 100
+        brutto_price = float(brutto_price_text.replace(".", "").replace(",", "."))
+        netto_price = math.ceil(brutto_price / (1 + VAT))
         return [ order_number, netto_price ]
