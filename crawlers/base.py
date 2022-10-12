@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import csv
 import os
-import urllib.request
+import requests
 
 class BaseCrawler:
     name = ""
@@ -11,6 +11,8 @@ class BaseCrawler:
     csv_delimiter = ";"
     errors = []
     logger = None
+    needs_auth = False
+    config = None
 
     def __init__(self, logger, config):
         self.logger = logger
@@ -18,6 +20,8 @@ class BaseCrawler:
         output_paths = config["output_paths"]
         if self.name in output_paths:
             self.file_path = output_paths[self.name]
+        if self.name in config:
+            self.config = config[self.name]
 
     def get_page(self, base_url, page_number):
         self.__ensure_abstract_method("get_page")
@@ -36,10 +40,31 @@ class BaseCrawler:
         exception_text += "werden, die von NordcapCrawler erbt".format(method_name)
         raise Exception(exception_text)
 
+    def __test_config_field(self, config_field_name, consequence = None):
+        error = None
+        if self.config == None:
+            error = "Config für '{}' fehlt".format(self.name)
+        if not config_field_name in self.config:
+            raise Exception("Config '{}' für '{}' fehlt".format(config_field_name, self.name))
+        if error != None:
+            if consequence != None:
+                error = "{}; {}".format(error, consequence)
+            raise Exception(error)
+
     def get_soup(self, url):
-        content = urllib.request.urlopen(url)
-        read_content = content.read()
-        soup = BeautifulSoup(read_content,'html.parser')
+        if self.needs_auth:
+            self.__test_config_field("auth_url")
+            self.__test_config_field("auth_user")
+            self.__test_config_field("auth_password")
+            session = requests.Session()
+            session.get("{}&uid={}&pwd={}".format(
+                self.config["auth_url"],
+                self.config["auth_user"],
+                self.config["auth_password"])) #codice=&lingua=4
+            content = session.get(url)
+        else:
+            content = requests.get(url)
+        soup = BeautifulSoup(content.text,'html.parser')
         return soup
 
     def get_product_urls(self, base_url):
