@@ -7,3 +7,6 @@ ls_price:
   auth_url: https://b2bnet.lfspareparts724.com/Login
   auth_user: AUTH_USER
   auth_password: AUTH_PASSWORD
+  input_csv_path: ../../LF/LF-Catering_2019.csv
+  input_csv_encoding: cp1252
+  input_csv_separator: ;

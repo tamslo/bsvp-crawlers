@@ -12,6 +12,7 @@ class BaseCrawler:
     errors = []
     logger = None
     needs_auth = False
+    uses_input_csv = False
     config = None
 
     def __init__(self, logger, config):
@@ -34,6 +35,10 @@ class BaseCrawler:
 
     def get_product_information(self, product_page, product_url):
         self.__ensure_abstract_method("get_product_information")
+
+
+    def get_csv_item_url(self, csv_row):
+        self.__ensure_abstract_method("get_csv_item_url")
 
     def __ensure_abstract_method(self, method_name):
         exception_text = "Die Methode '{}' muss von der Klasse implementiert "
@@ -67,12 +72,28 @@ class BaseCrawler:
         soup = BeautifulSoup(content.text,'html.parser')
         return soup
 
+    def _get_input_csv_data(self):
+        self.__test_config_field("input_csv_path")
+        self.__test_config_field("input_csv_encoding")
+        self.__test_config_field("input_csv_separator")
+        csv_path = self.config["input_csv_path"]
+        csv_encoding = self.config["input_csv_encoding"]
+        csv_separator = self.config["input_csv_separator"]
+        with open(csv_path, "r", encoding=csv_encoding) as input_csv_file:
+            csv_reader = csv.DictReader(input_csv_file, delimiter=csv_separator)
+            return list(csv_reader)
+
     def get_product_urls(self, base_url):
         product_urls = []
-        pages = self.get_pages(base_url)
-        for page in pages:
-            page_product_urls = self.get_page_product_urls(page)
-            product_urls = product_urls + page_product_urls
+        if self.uses_input_csv:
+            csv_reader = self._get_input_csv_data()
+            for csv_row in csv_reader:
+                product_urls.append(self.get_csv_item_url(csv_row, base_url))
+        else:
+            pages = self.get_pages(base_url)
+            for page in pages:
+                page_product_urls = self.get_page_product_urls(page)
+                product_urls = product_urls + page_product_urls
         return product_urls
 
     def get_pages(self, base_url):
@@ -106,6 +127,10 @@ class BaseCrawler:
         self.logger.log("{} Produkte gefunden".format(len(product_urls)), console_prefix = "---")
         with open(self.file_path, "w", newline = "", encoding = self.csv_encoding) as csv_file:
             csv_writer = csv.writer(csv_file, delimiter = self.csv_delimiter)
+            if self.uses_input_csv:
+                input_data = self._get_input_csv_data()
+                dict_from_csv = dict(input_data[0])
+                self.header = list(dict_from_csv.keys())
             csv_writer.writerow(self.header)
             product_number = 0
             self.logger.log("Produktinformationen werden gesammelt...", console_prefix = "---")
@@ -114,7 +139,8 @@ class BaseCrawler:
                 self.logger.print_progress("Produkt", product_number, len(product_urls), console_prefix = "---")
                 product_page = self.get_soup(product_url)
                 product_information = self.get_product_information(product_page, product_url)
-                csv_writer.writerow(product_information)
+                if product_information is not None:
+                    csv_writer.writerow(product_information)
         if len(self.errors) == 0:
             self.logger.log("Vorgang abgeschlossen", console_prefix = "---")
         else:
