@@ -40,6 +40,9 @@ class BaseCrawler:
     def get_csv_item_url(self, csv_row):
         self.__ensure_abstract_method("get_csv_item_url")
 
+    def get_auth_url(self):
+        self.__ensure_abstract_method("get_auth_url")
+
     def __ensure_abstract_method(self, method_name):
         exception_text = "Die Methode '{}' muss von der Klasse implementiert "
         exception_text += "werden, die von NordcapCrawler erbt".format(method_name)
@@ -62,10 +65,7 @@ class BaseCrawler:
             self.__test_config_field("auth_user")
             self.__test_config_field("auth_password")
             session = requests.Session()
-            session.get("{}&uid={}&pwd={}".format(
-                self.config["auth_url"],
-                self.config["auth_user"],
-                self.config["auth_password"])) #codice=&lingua=4
+            response = session.post(self.get_auth_url())
             content = session.get(url)
         else:
             content = requests.get(url)
