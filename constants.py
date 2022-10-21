@@ -2,6 +2,8 @@ NORDCAP_OUTLET_CRAWLER = "nordcap_outlet"
 NORDCAP_DELIVERY_STATUS_CRAWLER = "nordcap_delivery_status"
 RIVACOLD_DELIVERY_STATUS_CRAWLER = "rivacold_delivery_status"
 VIESSMANN_REPLACEMENTS_CRAWLER = "viessmann_replacements"
+LF_PRICE_CRAWLER = "ls_price"
+
 VAT = 0.19
 
 LOG_DIRECTORY = "logs"

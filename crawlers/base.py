@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import csv
 import os
-import urllib.request
+import requests
 
 class BaseCrawler:
     name = ""
@@ -11,6 +11,9 @@ class BaseCrawler:
     csv_delimiter = ";"
     errors = []
     logger = None
+    needs_auth = False
+    uses_input_csv = False
+    config = None
 
     def __init__(self, logger, config):
         self.logger = logger
@@ -18,6 +21,8 @@ class BaseCrawler:
         output_paths = config["output_paths"]
         if self.name in output_paths:
             self.file_path = output_paths[self.name]
+        if self.name in config:
+            self.config = config[self.name]
 
     def get_page(self, base_url, page_number):
         self.__ensure_abstract_method("get_page")
@@ -31,10 +36,28 @@ class BaseCrawler:
     def get_product_information(self, product_page, product_url):
         self.__ensure_abstract_method("get_product_information")
 
+
+    def get_csv_item_url(self, csv_row):
+        self.__ensure_abstract_method("get_csv_item_url")
+
+    def get_auth_url(self):
+        self.__ensure_abstract_method("get_auth_url")
+
     def __ensure_abstract_method(self, method_name):
         exception_text = "Die Methode '{}' muss von der Klasse implementiert "
         exception_text += "werden, die von NordcapCrawler erbt".format(method_name)
         raise Exception(exception_text)
+
+    def __test_config_field(self, config_field_name, consequence = None):
+        error = None
+        if self.config == None:
+            error = "Config für '{}' fehlt".format(self.name)
+        if not config_field_name in self.config:
+            raise Exception("Config '{}' für '{}' fehlt".format(config_field_name, self.name))
+        if error != None:
+            if consequence != None:
+                error = "{}; {}".format(error, consequence)
+            raise Exception(error)
 
     def get_soup(self, url):
         MAX_RETRIES = 5
@@ -43,21 +66,44 @@ class BaseCrawler:
         while current_retries < MAX_RETRIES and content == None:
             try:
                 current_retries = current_retries + 1
-                content = urllib.request.urlopen(url)
-            except urllib.error.URLError as exception:
+                if self.needs_auth:
+                    self.__test_config_field("auth_url")
+                    self.__test_config_field("auth_user")
+                    self.__test_config_field("auth_password")
+                    session = requests.Session()
+                    response = session.post(self.get_auth_url())
+                    content = session.get(url)
+                else:
+                    content = requests.get(url)
+            except Exception as exception:
                 pass
         if content == None:
             raise Exception("Keine Antort nach {} Versuchen.".format(MAX_RETRIES))
-        read_content = content.read()
-        soup = BeautifulSoup(read_content,'html.parser')
+        soup = BeautifulSoup(content.text,'html.parser')
         return soup
+
+    def _get_input_csv_data(self):
+        self.__test_config_field("input_csv_path")
+        self.__test_config_field("input_csv_encoding")
+        self.__test_config_field("input_csv_separator")
+        csv_path = self.config["input_csv_path"]
+        csv_encoding = self.config["input_csv_encoding"]
+        csv_separator = self.config["input_csv_separator"]
+        with open(csv_path, "r", encoding=csv_encoding) as input_csv_file:
+            csv_reader = csv.DictReader(input_csv_file, delimiter=csv_separator)
+            return list(csv_reader)
 
     def get_product_urls(self, base_url):
         product_urls = []
-        pages = self.get_pages(base_url)
-        for page in pages:
-            page_product_urls = self.get_page_product_urls(page)
-            product_urls = product_urls + page_product_urls
+        if self.uses_input_csv:
+            csv_reader = self._get_input_csv_data()
+            for csv_row in csv_reader:
+                product_urls.append(self.get_csv_item_url(csv_row, base_url))
+        else:
+            pages = self.get_pages(base_url)
+            for page in pages:
+                page_product_urls = self.get_page_product_urls(page)
+                product_urls = product_urls + page_product_urls
         return product_urls
 
     def get_pages(self, base_url):
@@ -91,6 +137,10 @@ class BaseCrawler:
         self.logger.log("{} Produkte gefunden".format(len(product_urls)), console_prefix = "---")
         with open(self.file_path, "w", newline = "", encoding = self.csv_encoding) as csv_file:
             csv_writer = csv.writer(csv_file, delimiter = self.csv_delimiter)
+            if self.uses_input_csv:
+                input_data = self._get_input_csv_data()
+                dict_from_csv = dict(input_data[0])
+                self.header = list(dict_from_csv.keys())
             csv_writer.writerow(self.header)
             product_number = 0
             self.logger.log("Produktinformationen werden gesammelt...", console_prefix = "---")
@@ -100,7 +150,8 @@ class BaseCrawler:
                     self.logger.print_progress("Produkt", product_number, len(product_urls), console_prefix = "---")
                     product_page = self.get_soup(product_url)
                     product_information = self.get_product_information(product_page, product_url)
-                    csv_writer.writerow(product_information)
+                    if product_information is not None:
+                        csv_writer.writerow(product_information)
                 except Exception as exception:
                     self.logger.log("Das Produkt mit der URL {} wurde übersprungen: {}".format(product_url, str(exception)))
                     pass
