@@ -23,7 +23,7 @@ crawlers = {
     NORDCAP_OUTLET_CRAWLER: NordcapOutletCrawler,
     NORDCAP_DELIVERY_STATUS_CRAWLER: NordcapDeliveryStatusCrawler,
     RIVACOLD_DELIVERY_STATUS_CRAWLER: RivacoldDeliveryStatusCrawler,
-    LF_PRICE_CRAWLER: LfPriceCrawler
+    LF_PRICE_CRAWLER: LfPriceCrawler,
 }
 
 def main():

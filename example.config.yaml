@@ -8,5 +8,5 @@ ls_price:
   auth_user: AUTH_USER
   auth_password: AUTH_PASSWORD
   input_csv_path: ../../LF/LF-Catering_2019.csv
-  input_csv_encoding: iso-8859-1
+  input_csv_encoding: cp1252
   input_csv_separator: ;

@@ -9,7 +9,7 @@ Crawlers for refrigeration equipment.
 ## Further configurations
 
 You can configure some behavior of the crawlers in the `config.yaml` file.
-If it does not exist, the file is automatically created on script start.
+If it does not exist, the file is automatically created on script start from `example.config.yaml`, which holds the default values.
 If you want add configuration details before first script execution, manually copy or rename the `example.config.yaml` to `config.yaml`.
 
 ### Crawlers with authentication

@@ -6,18 +6,22 @@ class LfPriceCrawler(BaseCrawler):
     urls = ["https://b2bnet.lfspareparts724.com/RicercaRapida/Result?StringaDiRicerca="]
     needs_auth = True
     uses_input_csv = True
+    url_helper_param = "&OriginalArticleNumber="
 
     def get_csv_item_url(self, csv_row, base_url):
-        return "{}{}".format(base_url, csv_row["artikelnummer"])
+        search_number = csv_row["artikelnummer"]
+        if "-" in search_number:
+            search_number = search_number.split("-")[1]
+        return "{}{}{}{}".format(base_url, search_number, self.url_helper_param, csv_row["artikelnummer"])
+
+    def __get_article_number_from_url(self, product_url):
+        return product_url.split(self.url_helper_param)[1]
 
     def get_auth_url(self):
         return "{}?codice=&uid={}&pwd={}&lingua=4".format(
                 self.config["auth_url"],
                 self.config["auth_user"],
                 self.config["auth_password"])
-
-    def __get_article_number_from_url(self, product_url):
-        return product_url.replace(self.urls[0], "")
 
     def get_product_information(self, product_page, product_url):
         article_number = self.__get_article_number_from_url(product_url)
