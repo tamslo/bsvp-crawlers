@@ -20,8 +20,12 @@ class LfPriceCrawler(BaseCrawler):
         return product_url.replace(self.urls[0], "")
 
     def get_product_information(self, product_page, product_url):
-        input_data = self._get_input_csv_data()
         article_number = self.__get_article_number_from_url(product_url)
+        for heading in product_page.find_all("h1"):
+            if heading.text == "Technische Anfrage":
+                self.errors.append("Produkt mit Artikelnummer {} konnte nicht gefunden werden".format(article_number))
+                return None
+        input_data = self._get_input_csv_data()
         input_informations = [article for article in input_data if article["artikelnummer"] == article_number]
         if len(input_informations) > 1:
             self.logger.log("--- WARNUNG: {} Produkte mit Artikelnummer {} in Input CSV; wähle das erste".format( len(input_informations), article_number))
@@ -33,14 +37,21 @@ class LfPriceCrawler(BaseCrawler):
         if len(product_data) != 1:
             self.errors.append("Artikel {} hat mehr als einen div mit class='product-data-panel'".format(article_number))
             return None
+        has_table = False
         prodcuct_data_list = product_data[0].find_all("li")
+        if len(prodcuct_data_list) == 0:
+            has_table = True
+            prodcuct_data_list = product_data[0].find_all("tr")
         price_item = None
         for product_information in prodcuct_data_list:
-            product_information_name = product_information.find("div", { "class": "data" }).text
+            if not has_table:
+                product_information_name = product_information.find("div", { "class": "data" }).text
+            else:
+                product_information_name = product_information.find_all("td")[0].text
             if product_information_name == 'Brutto Einzelpreis':
                 price_item = product_information.find("strong")
                 if len(price_item.find_all("del")) > 0:
-                    price_item.find("del").decompose()
+                    price_item = price_item.find("del")
         if price_item is None:
             self.errors.append("Artikel {} hat keinen Brutto Einzelpreis".format(article_number))
             return None
