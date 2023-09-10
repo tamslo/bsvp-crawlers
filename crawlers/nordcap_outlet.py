@@ -19,7 +19,7 @@ class NordcapOutletCrawler(NordcapBaseCrawler):
         outlet_code = product_page.find_all("span", "entry--content", itemprop = "sku")[0].text.strip()
         article_number = product_page.find_all("span", "entry--content", itemprop = "artikelnummer")[0].text.strip()
         article_name = product_page.find_all("h1", "product--title")[0].text.strip()
-        article_type = product_page.find_all("span", "entry--content", itemprop = "geraeteart")[0].text.strip()
+        article_type = product_page.find_all("span", "breadcrumb--title", itemprop = "name")[-1].text.strip()
         # Warranty items called "seriennummer" on outlet page; need to differentiate
         serial_number_items = product_page.find_all("span", "entry--content", itemprop = "seriennummer")
         warranty = serial_number_items[-1].text.strip()
