@@ -26,6 +26,10 @@ class NordcapOutletCrawler(NordcapBaseCrawler):
         if (len(serial_number_items) > 1):
             serial_number = serial_number_items[0].text.strip()
             outlet_code = "{} / {}".format(outlet_code, serial_number)
+        if warranty.startswith('6'):
+            article_name = f'{article_name} B-Ware (6 Monate Gewährleistung)'
+        if warranty.startswith('12'):
+            article_name = f'{article_name} Auslaufartikel (12 Monate Gewährleistung)'
 
         def get_description(product_page):
             def get_main_parts(all_parts):
